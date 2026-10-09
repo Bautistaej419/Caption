@@ -1,0 +1,6 @@
+# Local Worker development only. Copy to .dev.vars and replace every value.
+# .dev.vars is ignored by Git and must never be committed.
+LIVEKIT_URL=wss://<your-livekit-project>.livekit.cloud
+LIVEKIT_API_KEY=<your-livekit-api-key>
+LIVEKIT_API_SECRET=<your-livekit-api-secret>
+ALLOWED_ORIGINS=https://<github-user>.github.io,http://localhost:5500

@@ -1,0 +1,41 @@
+name: Deploy CAPTION to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    env:
+      # Repository Actions variable, not a secret: this URL is public.
+      CAPTION_TOKEN_ENDPOINT: ${{ vars.CAPTION_TOKEN_ENDPOINT }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure public token endpoint
+        shell: bash
+        run: |
+          if [ -z "$CAPTION_TOKEN_ENDPOINT" ]; then
+            echo "CAPTION_TOKEN_ENDPOINT is not set; video calls will remain disabled."
+          else
+            sed -i "s|tokenEndpoint: \"\"|tokenEndpoint: \"$CAPTION_TOKEN_ENDPOINT\"|" livekit-config.js
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
