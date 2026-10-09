@@ -3,6 +3,5 @@
  * Never put LiveKit API keys or secrets in this frontend file.
  */
 window.CAPTION_CONFIG = {
-    // Example: "https://caption-livekit-token.<your-subdomain>.workers.dev/token"
-    tokenEndpoint: ""
+    tokenEndpoint: "https://caption-livekit-token.caption-bautistaej419.workers.dev/token"
 };
