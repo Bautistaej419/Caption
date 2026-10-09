@@ -4,6 +4,5 @@ compatibility_date = "2026-10-09"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-# Comma-separated trusted origins only. Set the real values before deployment.
-# Example: "https://your-account.github.io,http://localhost:5500"
-ALLOWED_ORIGINS = ""
+# Public CAPTION site plus local Live Server for development.
+ALLOWED_ORIGINS = "https://bautistaej419.github.io,http://localhost:5500"
