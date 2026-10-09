@@ -1,4 +1,4 @@
-import { AccessToken, VideoGrant } from "livekit-server-sdk";
+import { AccessToken } from "livekit-server-sdk";
 
 function allowedOrigins(env) {
     return (env.ALLOWED_ORIGINS || "")
@@ -59,13 +59,13 @@ export default {
                 identity,
                 ttl: "15m"
             });
-            token.addGrant(new VideoGrant({
+            token.addGrant({
                 room,
                 roomJoin: true,
                 canPublish: true,
                 canSubscribe: true,
                 canPublishData: true
-            }));
+            });
             return json({ token: await token.toJwt(), url: env.LIVEKIT_URL }, 200, origin);
         } catch (error) {
             return json({ error: error.message || "Could not create a video token" }, 400, origin);
