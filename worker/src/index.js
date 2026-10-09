@@ -25,6 +25,25 @@ function json(body, status, origin) {
     return Response.json(body, { status, headers: corsHeaders(origin) });
 }
 
+async function verifyLiveKitCredentials(env) {
+    const verifier = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, {
+        identity: "caption-worker-verification",
+        ttl: "1m"
+    });
+    verifier.addGrant({ roomList: true });
+
+    const apiUrl = `${env.LIVEKIT_URL.replace(/^wss:/, "https:").replace(/\/$/, "")}/twirp/livekit.RoomService/ListRooms`;
+    const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${await verifier.toJwt()}`,
+            "Content-Type": "application/json"
+        },
+        body: "{}"
+    });
+    return response.ok ? { valid: true } : { valid: false, status: response.status };
+}
+
 export default {
     async fetch(request, env) {
         const origin = request.headers.get("Origin");
@@ -32,6 +51,20 @@ export default {
 
         if (url.pathname === "/health" && request.method === "GET") {
             return Response.json({ ok: true });
+        }
+
+        if (url.pathname === "/verify" && request.method === "GET") {
+            if (!isAllowedOrigin(origin, env)) {
+                return Response.json({ error: "Origin is not allowed" }, { status: 403 });
+            }
+            if (!env.LIVEKIT_URL || !env.LIVEKIT_API_KEY || !env.LIVEKIT_API_SECRET) {
+                return json({ valid: false, error: "LiveKit Worker secrets are not configured" }, 400, origin);
+            }
+            try {
+                return json(await verifyLiveKitCredentials(env), 200, origin);
+            } catch {
+                return json({ valid: false, error: "Could not reach the LiveKit server" }, 502, origin);
+            }
         }
 
         if (url.pathname !== "/token") {
